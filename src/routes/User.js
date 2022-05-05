@@ -6,7 +6,7 @@ import { format } from "date-fns"
 import { BeatLoader } from "react-spinners"
 
 import { SIZES } from "styles/constants"
-import { withFirebase } from "components/firebase"
+import { getAllEntries, doSendEmailVerification, doPasswordReset } from '../fire'
 import { withAuthentication } from "components/session"
 import SignOut from "components/SignOut"
 import { Button } from "components/elements"
@@ -38,19 +38,6 @@ class User extends React.Component {
     exporting: false,
   }
 
-  getEntries = async _ => {
-    const { firebase, authUser } = this.props
-    const entriesRef = await firebase.db
-      .collection("entries")
-      .where("userId", "==", authUser.uid)
-      .get()
-    const entries = entriesRef.docs.map(doc => doc.data())
-    const editedEntries = entries.map(entry => {
-      return { ...entry, userId: undefined }
-    })
-    return editedEntries
-  }
-
   clearFiles = () => {
     if (this.state.files.length) {
       this.state.files.forEach(({ data }) => {
@@ -65,7 +52,9 @@ class User extends React.Component {
 
       this.setState({ exporting: true, files: [] })
 
-      const data = await this.getEntries()
+      const { authUser } = this.props
+
+      const data = await getAllEntries(authUser.uid)
       const blob = new Blob([JSON.stringify(data)], {
         type: "text/json;charset=utf-8",
       })
@@ -85,7 +74,7 @@ class User extends React.Component {
   }
 
   render() {
-    const { authUser, theme, firebase } = this.props
+    const { authUser, theme } = this.props
     const { exporting, files } = this.state
     return (
       <ProfileGrid>
@@ -101,8 +90,7 @@ class User extends React.Component {
                     Email not verified{" "}
                     <span
                       onClick={() => {
-                        console.log("resent!")
-                        firebase.resendVerification(authUser.email)
+                        doSendEmailVerification()
                       }}
                     >
                       Resend?
@@ -128,8 +116,7 @@ class User extends React.Component {
             fontSize="small"
             colors={theme.colors}
             onClick={() => {
-              console.log("reset!")
-              firebase.doPasswordReset(authUser.email)
+              doPasswordReset(authUser.email)
             }}
           >
             Send Reset
@@ -187,7 +174,6 @@ class User extends React.Component {
 }
 
 export default compose(
-  withFirebase,
   withAuthentication,
   withTheme
 )(User)

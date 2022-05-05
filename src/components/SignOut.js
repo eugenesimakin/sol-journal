@@ -1,17 +1,17 @@
 import React from "react"
 import { compose } from "recompose"
 import { withTheme } from "emotion-theming"
-
+import { navigate } from "gatsby"
 import { Button } from "components/elements"
 
-import { withFirebase } from "components/firebase"
+import { doSignOut } from "../fire"
 
-const SignOutButton = ({ firebase, theme }) => (
+const SignOutButton = ({ theme }) => (
   <Button
     fontSize="small"
     colors={theme.colors}
     type="button"
-    onClick={firebase.doSignOut}
+    onClick={() => doSignOut().then(() => navigate('/login'))}
   >
     Sign Out
   </Button>
@@ -19,5 +19,4 @@ const SignOutButton = ({ firebase, theme }) => (
 
 export default compose(
   withTheme,
-  withFirebase
 )(SignOutButton)

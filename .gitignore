@@ -29,3 +29,6 @@ yarn-error.log*
 .cache
 public
 /public
+
+firebase-debug.log
+.firebase

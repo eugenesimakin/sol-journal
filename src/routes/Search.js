@@ -8,7 +8,7 @@ import { BeatLoader } from "react-spinners"
 
 import { AppLink as Link } from "components/elements"
 import { Input } from "components/elements"
-import { withFirebase } from "components/firebase"
+import { getLastEntries, getFilteredEntries } from "../fire"
 import { withAuthentication } from "components/session"
 import { pad } from "utils/date"
 
@@ -68,28 +68,24 @@ class Search extends Component {
   }
 
   filterEntries = searchTerm => {
-    const { allEntries } = this.state
+    const { allEntries } = this.state // allEntries = last 10 entries
     if (searchTerm === "") {
       this.setState({ entries: allEntries })
     } else {
-      const filteredEntries = allEntries.filter(entry => {
+      const { authUser } = this.props
+      const filteredEntries = getFilteredEntries(authUser.uid, entry => {
         return entry.text.toLowerCase().includes(searchTerm.toLowerCase())
       })
       this.setState({ entries: filteredEntries })
     }
   }
 
-  // all entries for a user are fetched this scales poorly but is much
-  // simpler than an API key and setting up an index for Algolia
+  // todo: proper fulltext search
   getEntries = async _ => {
-    const { firebase, authUser } = this.props
-    const entriesRef = await firebase.db
-      .collection("entries")
-      .where("userId", "==", authUser.uid)
-      .get()
-    const entries = entriesRef.docs.map(doc => doc.data()).reverse()
-
-    this.setState({ entries, allEntries: entries, loading: false })
+    const { authUser } = this.props
+    getLastEntries(authUser.uid).then(entries => {
+      this.setState({ entries, allEntries: entries, loading: false })
+    })
   }
 
   render() {
@@ -168,7 +164,6 @@ class Search extends Component {
 }
 
 export default compose(
-  withFirebase,
   withTheme,
   withAuthentication
 )(Search)

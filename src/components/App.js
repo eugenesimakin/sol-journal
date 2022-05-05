@@ -6,7 +6,6 @@ import { withTheme } from "emotion-theming"
 
 import { SIZES } from "styles/constants"
 
-// import theme from "./styles/theme"
 import Day from "routes/Day"
 import Month from "routes/Month"
 import Year from "routes/Year"
@@ -18,7 +17,6 @@ import Navbar from "components/Navbar"
 import PrivateRoute from "components/PrivateRoute"
 import { OnlineContext } from "components/context/online"
 import { withAuthentication } from "components/session"
-import { withFirebase } from "components/firebase"
 import ThemeTogglerContext from "components/context/theme"
 
 const FullscreenBgColor = styled.div`
@@ -117,6 +115,5 @@ class App extends Component {
 
 export default compose(
   withAuthentication,
-  withFirebase,
   withTheme
 )(App)

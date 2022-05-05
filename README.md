@@ -22,15 +22,6 @@ Journaling is a keystone habit that can improve your happiness and [overall heal
 
 Having a journal that is available on any device makes journaling easier. Being tailored specifically to journaling makes it less cumbersome than trying to utilize a note taking app or document for recording thoughts and impressions.
 
-## Getting Started
-
-There are 2 ways to get started using Sol Journal:
-
-1. You can develop it locally after hooking it up to your own Firebase project by following the instructions below
-2. You can host your own version and manage it yourself by following the [setup docs](https://github.com/gillkyle/sol-journal/blob/master/SETUP.md)
-
-Sol Journal uses firebase to support offline functionality and authentication, meaning a new Firebase app will need to be setup with Firestore as a database if you wish to host it yourself. Be sure to add documents for `users` and `entries`, as well as enabling email for user authentication.
-
 ## Features
 
 In the spirit of minimalism, a few key features are in place for a quick, lightweight journaling experience that can work across devices, including:
@@ -54,67 +45,6 @@ Files are organized into these folders:
 `/routes`: private, client only routes only visible to authenticated users that are used by the app section of the journal  
 `/styles`: role based design tokens and theme definitions  
 `/util`: simple utility functions, for things like formatting dates
-
-## Developing
-
-Clone the project:
-
-```bash
-git clone https://github.com/gillkyle/sol-journal
-```
-
-Install dependencies:
-
-```bash
-npm install
-```
-
-or
-
-```bash
-yarn
-```
-
-Then configure a file in a new `.env` file (using the `.env.sample` file as a reference) with the following keys from the firebase console:
-
-```env
-GATSBY_FIREBASE_API_KEY=<BUNCHofRandomNumbersAndChars>
-GATSBY_DEV_AUTH_DOMAIN=<name>.firebaseapp.com
-GATSBY_DEV_DATABASE_URL=https://<name>.firebaseio.com
-GATSBY_DEV_PROJECT_ID=<name>
-GATSBY_DEV_STORAGE_BUCKET=<name>.appspot.com
-GATSBY_DEV_MESSAGING_SENDER_ID=############
-
-GATSBY_CONFIRMATION_EMAIL_REDIRECT=https://<name>.firebaseapp.com
-```
-
-Again, be sure to add documents for `users` and `entries`, as well as enabling email for user authentication.
-
-Navigate into the project directory, and then launch the site with this command:
-
-```bash
-gatsby develop
-```
-
-The site will be opened up in your default browser on http://localhost:8000
-
-Edit code in the `/src`, save your changes, and they'll reload instantly in the browser.
-
-## Deploy
-
-To create an optimized build of the site run this command:
-
-```bash
-gatsby build
-```
-
-A `/public` folder will be assembled that can be deployed to any static file hosting service like Netlify or surge.
-
-It can be deployed to firebase with this command:
-
-```bash
-firebase deploy -p public
-```
 
 ## Inspiration and Other Projects
 

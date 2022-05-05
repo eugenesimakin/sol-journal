@@ -2,13 +2,12 @@ import React, { Component } from "react"
 import { navigate, Link } from "gatsby"
 import styled from "@emotion/styled"
 import { compose } from "recompose"
-import { format } from "date-fns"
 import { withTheme } from "emotion-theming"
 
 import { SimpleNavbar } from "components/Navbar"
 import { Input, Button, P } from "components/elements"
 import Layout from "components/Layout"
-import { FirebaseContext } from "components/firebase"
+import { doPasswordReset } from "../fire"
 import { SIZES } from "styles/constants"
 
 const LoginGrid = styled.div`
@@ -26,12 +25,10 @@ const LoginPage = ({ theme }) => (
   <Layout>
     <SimpleNavbar />
     <LoginLayout>
-    <P colors={theme.colors.primary} style={{ fontStyle: "italic" }}>
+      <P colors={theme.colors.primary} style={{ fontStyle: "italic" }}>
         Enter your email and we'll email you a password reset link!
       </P>
-      <FirebaseContext.Consumer>
-        {firebase => <LoginForm firebase={firebase} />}
-      </FirebaseContext.Consumer>
+      <LoginForm />
       <P colors={theme.colors} style={{ fontStyle: "italic" }}>
         Don't have an account?{" "}
         <Link style={{ color: theme.colors.primary }} to={"/register"}>
@@ -53,11 +50,10 @@ class LoginFormBase extends Component {
     event.preventDefault()
     const { email } = this.state
 
-    this.props.firebase
-      .doPasswordReset(email)
+    doPasswordReset(email)
       .then(() => {
         this.setState({ email: "", error: null })
-        navigate(`index`)
+        navigate(`/index`)
       })
       .catch(error => {
         this.setState({ error })
@@ -85,7 +81,7 @@ class LoginFormBase extends Component {
             placeholder="Email Address"
             colors={theme.colors}
           />
-          
+
           <Button colors={theme.colors} disabled={isInvalid} type="submit">
             Reset Password
           </Button>

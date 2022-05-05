@@ -1,7 +1,7 @@
 import React from "react"
 
 import AuthUserContext from "./context"
-import { withFirebase } from "components/firebase"
+import { authStateChanged } from "../../fire"
 
 // use context to provide all app components with information about
 // the authUser if it's been put in localStorage
@@ -21,7 +21,7 @@ const withAuthentication = Component => {
     }
 
     componentDidMount() {
-      this.listener = this.props.firebase.auth.onAuthStateChanged(
+      this.listener = authStateChanged(
         authUser => {
           // accessing localStorage in componentDidMount is fine in Gatsby
           localStorage.setItem("authUser", JSON.stringify(authUser))
@@ -55,7 +55,7 @@ const withAuthentication = Component => {
     }
   }
 
-  return withFirebase(WithAuthentication)
+  return WithAuthentication
 }
 
 export default withAuthentication

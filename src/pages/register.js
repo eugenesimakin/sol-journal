@@ -7,7 +7,7 @@ import { withTheme } from "emotion-theming"
 import { SimpleNavbar } from "components/Navbar"
 import { Input, Button, P } from "components/elements"
 import Layout from "components/Layout"
-import { FirebaseContext } from "components/firebase"
+import { doCreateUserWithEmailAndPassword } from '../fire'
 import { SIZES } from "styles/constants"
 
 const RegisterGrid = styled.div`
@@ -25,9 +25,7 @@ const RegisterPage = ({ theme }) => (
   <Layout>
     <SimpleNavbar />
     <RegisterLayout>
-      <FirebaseContext.Consumer>
-        {firebase => <RegisterForm firebase={firebase} />}
-      </FirebaseContext.Consumer>
+      <RegisterForm />
       <P colors={theme.colors} style={{ fontStyle: "italic" }}>
         By registering for this site you are agreeing to the{" "}
         <Link style={{ color: theme.colors.primary }} to={"/terms"}>
@@ -59,10 +57,8 @@ class RegisterFormBase extends Component {
 
   onSubmit = event => {
     const { email, passwordOne } = this.state
-    const { firebase } = this.props
 
-    firebase
-      .doCreateUserWithEmailAndPassword(email, passwordOne)
+    doCreateUserWithEmailAndPassword(email, passwordOne)
       .then(result => {
         this.setState({
           username: "",
@@ -71,18 +67,10 @@ class RegisterFormBase extends Component {
           passwordTwo: "",
           error: null,
         })
-        const { user } = result
-        console.log(user)
-        user.sendEmailVerification()
-        firebase.db
-          .collection("users")
-          .doc(user.uid)
-          .set({
-            email: user.email,
-          })
-        navigate("app/")
+        navigate("/app")
       })
       .catch(error => {
+        console.error(error)
         this.setState({ error })
       })
 

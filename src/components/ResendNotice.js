@@ -3,7 +3,7 @@ import styled from "@emotion/styled"
 import { withTheme } from "emotion-theming"
 import { compose } from "recompose"
 
-import { withFirebase } from "components/firebase"
+import { doSendEmailVerification } from "../fire"
 import { Button } from "components/elements"
 import Logo from "components/Logo"
 
@@ -14,7 +14,7 @@ const NoticeBlock = styled.footer`
   color: ${props => props.theme.colors.secondary};
 `
 
-const ResendNotice = ({ theme, firebase }) => (
+const ResendNotice = ({ theme }) => (
   <NoticeBlock>
     <div>
       <Logo color={theme.colors.secondary} />
@@ -27,7 +27,7 @@ const ResendNotice = ({ theme, firebase }) => (
       <Button
         colors={theme.colors}
         onClick={() => {
-          firebase.resendVerification()
+          doSendEmailVerification()
         }}
         fontSize="small"
       >
@@ -38,6 +38,5 @@ const ResendNotice = ({ theme, firebase }) => (
 )
 
 export default compose(
-  withFirebase,
   withTheme
 )(ResendNotice)

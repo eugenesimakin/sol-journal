@@ -7,7 +7,7 @@ import { jsx, css, keyframes } from "@emotion/core"
 import { compose } from "recompose"
 import { withTheme } from "emotion-theming"
 
-import { withFirebase } from "components/firebase"
+import { getEntry, saveText } from "../fire"
 import { withAuthentication } from "components/session"
 import { OnlineContext } from "components/context/online"
 
@@ -112,7 +112,7 @@ class Day extends React.Component {
 
   componentDidMount() {
     const { year, month, day } = this.props
-    this.getDocRef(year, month, day, false)
+    this.getDocRef(year, month, day)
   }
 
   componentDidUpdate(prevProps) {
@@ -134,43 +134,18 @@ class Day extends React.Component {
 
   onRouteChanged = (year, month, day) => {
     this.setState({ loading: true })
-    this.getDocRef(year, month, day, false)
+    this.getDocRef(year, month, day)
   }
 
-  getDocRef = (year, month, day, cacheFirst) => {
-    const { firebase, authUser } = this.props
-    const getOptions = {
-      source: cacheFirst ? "cache" : "default",
-    }
-    const docRef = firebase.db
-      .collection("entries")
-      .doc(`${year}${month}${day}-${authUser.uid}`)
-    this.getData(docRef, getOptions)
-  }
-
-  getData = (docRef, options) => {
-    docRef
-      .get(options)
-      .then((doc) => {
-        if (doc.data()) {
-          this.setState({ text: doc.data().text, loading: false })
-        } else {
-          this.setState({ text: "", loading: false })
-        }
-      })
-      .catch((err) => {
-        console.warn("entry not found in cache")
-        // no doc was found, so reset the entry area to blank
-        this.setState({ loading: false, text: "" })
-        // for cache first, server second fetching, dangerous with potential overwriting of data
-        // docRef.get().then(doc => {
-        //   if (doc.data()) {
-        //     this.setState({ text: doc.data().text, loading: false });
-        //   } else {
-        //     this.setState({ text: "", loading: false });
-        //   }
-        // });
-      })
+  getDocRef = (year, month, day) => {
+    const { authUser } = this.props
+    getEntry(year, month, day, authUser.uid).then(entry => {
+      if (entry) {
+        this.setState({ text: entry.text, loading: false })
+      } else {
+        this.setState({ text: "", loading: false })
+      }
+    })
   }
 
   onChangeText = (e) => {
@@ -201,22 +176,8 @@ class Day extends React.Component {
 
   saveText = (text, year, month, day) => {
     this.setState({ saving: true })
-    const { firebase, authUser } = this.props
-    firebase.db
-      .collection("entries")
-      .doc(`${year}${month}${day}-${authUser.uid}`)
-      .set(
-        {
-          text,
-          day: Number(day),
-          year: Number(year),
-          month: Number(month),
-          userId: authUser.uid,
-        },
-        {
-          merge: true,
-        }
-      )
+    const { authUser } = this.props
+    saveText(text, year, month, day, authUser.uid)
       .then(() => {
         this.setState({ saving: false, lastSavedAt: new Date() })
       })
@@ -306,4 +267,4 @@ class Day extends React.Component {
   }
 }
 
-export default compose(withFirebase, withTheme, withAuthentication)(Day)
+export default compose(withTheme, withAuthentication)(Day)

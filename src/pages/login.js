@@ -8,7 +8,7 @@ import { withTheme } from "emotion-theming"
 import { SimpleNavbar } from "components/Navbar"
 import { Input, Button, P } from "components/elements"
 import Layout from "components/Layout"
-import { FirebaseContext } from "components/firebase"
+import { doSignInWithEmailAndPassword } from '../fire'
 import { SIZES } from "styles/constants"
 
 const LoginGrid = styled.div`
@@ -26,16 +26,14 @@ const LoginPage = ({ theme }) => (
   <Layout>
     <SimpleNavbar />
     <LoginLayout>
-      <FirebaseContext.Consumer>
-        {firebase => <LoginForm firebase={firebase} />}
-      </FirebaseContext.Consumer>
+      <LoginForm />
       <P colors={theme.colors} style={{ fontStyle: "italic" }}>
         Don't have an account?{" "}
         <Link style={{ color: theme.colors.primary }} to={"/register"}>
           Sign Up
         </Link>
-      <br />
-      Or{" "}
+        <br />
+        Or{" "}
         <Link style={{ color: theme.colors.primary }} to={"/resetpassword"}>
           Reset Password
         </Link>
@@ -55,11 +53,10 @@ class LoginFormBase extends Component {
     event.preventDefault()
     const { email, password } = this.state
 
-    this.props.firebase
-      .doSignInWithEmailAndPassword(email, password)
+    doSignInWithEmailAndPassword(email, password)
       .then(() => {
         this.setState({ email: "", password: "", error: null })
-        navigate(`app/${format(new Date(), "/")}`)
+        navigate(`/app/${format(new Date(), "/")}`)
       })
       .catch(error => {
         this.setState({ error })
