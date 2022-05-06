@@ -20,6 +20,7 @@ import {
   limit,
   getDocs,
   where,
+  orderBy,
 } from 'firebase/firestore'
 
 // store private keys in .env file
@@ -94,21 +95,22 @@ export const getEntry = async (year, month, day, userId) => {
   }
 }
 
-// last 10 entries
+// last 5 entries
 export const getLastEntries = async (userId) => {
-  const q = query(collection(getFirestore(app), 'entries'), where('userId', '==', userId), limit(10))
+  const q = query(collection(getFirestore(app), 'entries'), where('userId', '==', userId), limit(5))
   const snapshots = await getDocs(q)
-  return snapshots.docs().data()
+  return snapshots.docs.map(snapshot => snapshot.data())
 }
 
 export const getAllEntries = async (userId) => {
   const q = query(collection(getFirestore(app), 'entries'), where('userId', '==', userId))
   const snapshots = await getDocs(q)
-  return snapshots.docs().data()
+  return snapshots.docs.map(snapshot => snapshot.data())
 }
 
 export const getFilteredEntries = async (userId, predicate) => {
-  return getAllEntries(userId).filter(predicate)
+  const entries = await getAllEntries(userId)
+  return entries.filter(predicate)
 }
 
 export const saveText = async (text, year, month, day, userId) => {

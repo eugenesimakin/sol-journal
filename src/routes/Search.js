@@ -73,10 +73,11 @@ class Search extends Component {
       this.setState({ entries: allEntries })
     } else {
       const { authUser } = this.props
-      const filteredEntries = getFilteredEntries(authUser.uid, entry => {
+      getFilteredEntries(authUser.uid, entry => {
         return entry.text.toLowerCase().includes(searchTerm.toLowerCase())
+      }).then(filteredEntries => {
+        this.setState({ entries: filteredEntries })
       })
-      this.setState({ entries: filteredEntries })
     }
   }
 
