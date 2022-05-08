@@ -14,7 +14,9 @@ import {
 import { SIZES } from "styles/constants"
 
 import { AppLink as Link } from "components/elements"
+import { withAuthentication } from "components/session"
 import Seek from "components/Seek"
+import { getDaysInMonthFilled } from "../fire"
 
 const DayCardGrid = styled.div`
   display: grid;
@@ -49,22 +51,47 @@ const DayCardBanner = styled.div`
 `
 const DayCardContent = styled.div`
   padding: 20px 25px;
+  font-weight: ${props => props.hasText ? 'bold' : 'normal'};
 `
 
 class Month extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { days: [] }
+    this.highlightEntries = this.highlightEntries.bind(this)
+  }
+
+  componentDidMount() {
+    this.highlightEntries()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.uri !== prevProps.uri) {
+      this.highlightEntries()
+    }
+  }
+
+  highlightEntries() {
+    const { year, month, authUser } = this.props
+    getDaysInMonthFilled(year, month, authUser.uid).then(days => {
+      this.setState({ days })
+    })
+  }
+
   render() {
     const { year, month } = this.props
-    const currentDay = new Date(year, month - 1)
+    const nowDate = new Date(year, month - 1)
+    const daysHasText = this.state.days
 
     // include all months unless it's this year
     let dayIndexesToInclude = 31
-    if (isThisYear(currentDay)) {
+    if (isThisYear(nowDate)) {
       dayIndexesToInclude = new Date().getDate()
     }
 
     let dayCards = []
-    for (let i = 0; i < getDaysInMonth(currentDay); i++) {
-      const isDisabled = dayIndexesToInclude <= i && isThisMonth(currentDay)
+    for (let i = 0; i < getDaysInMonth(nowDate); i++) {
+      const isDisabled = dayIndexesToInclude <= i && isThisMonth(nowDate)
       if (isDisabled) {
         dayCards.push(
           <DayCard disabled={isDisabled} key={i}>
@@ -75,6 +102,7 @@ class Month extends Component {
           </DayCard>
         )
       } else {
+        const hasText = daysHasText.includes(i + 1)
         dayCards.push(
           <Link
             key={i}
@@ -85,7 +113,7 @@ class Month extends Component {
               <DayCardBanner>
                 {format(new Date(year, month - 1, i + 1), "ddd")}
               </DayCardBanner>
-              <DayCardContent>{i + 1}</DayCardContent>
+              <DayCardContent hasText={hasText}>{i + 1}</DayCardContent>
             </DayCard>
           </Link>
         )
@@ -95,11 +123,11 @@ class Month extends Component {
     return (
       <>
         <Seek
-          title={format(currentDay, "YYYY MMM")}
-          prev={format(subMonths(currentDay, 1), "/YYYY/MM")}
-          next={format(addMonths(currentDay, 1), "/YYYY/MM")}
+          title={format(nowDate, "YYYY MMM")}
+          prev={format(subMonths(nowDate, 1), "/YYYY/MM")}
+          next={format(addMonths(nowDate, 1), "/YYYY/MM")}
           disableNext={isAfter(
-            currentDay,
+            nowDate,
             startOfMonth(subMonths(new Date(), 1))
           )}
         />
@@ -109,4 +137,4 @@ class Month extends Component {
   }
 }
 
-export default Month
+export default withAuthentication(Month)

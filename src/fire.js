@@ -86,7 +86,7 @@ export const doPasswordUpdate = (user, password) => updatePassword(user, passwor
 export const authStateChanged = (next, error) => onAuthStateChanged(getAuth(), next, error)
 
 export const getEntry = async (year, month, day, userId) => {
-  const docRef = doc(getFirestore(app), "entries", `${year}${month}${day}-${userId}`)
+  const docRef = doc(getFirestore(app), `/users/${userId}/entries/${year}${month}${day}`)
   const docSnap = await getDoc(docRef)
   if (docSnap.exists()) {
     return docSnap.data()
@@ -95,16 +95,26 @@ export const getEntry = async (year, month, day, userId) => {
   }
 }
 
+export const getDaysInMonthFilled = async (year, month, userId) => {
+  const docRef = doc(getFirestore(app), `/users/${userId}/daysInMonthFilled/${year}${month}`)
+  const docSnap = await getDoc(docRef)
+  if (docSnap.exists()) {
+    return docSnap.data().days
+  } else {
+    return []
+  }
+}
+
 // last 5 entries
 export const getLastEntries = async (userId) => {
-  const q = query(collection(getFirestore(app), 'entries'), where('userId', '==', userId), limit(5))
+  const q = query(collection(getFirestore(app), `/users/$${userId}/entries`), limit(5))
   const snapshots = await getDocs(q)
   return snapshots.docs.map(snapshot => snapshot.data())
 }
 
 export const getAllEntries = async (userId) => {
-  const q = query(collection(getFirestore(app), 'entries'), where('userId', '==', userId))
-  const snapshots = await getDocs(q)
+  const entriesRef = collection(getFirestore(app), `/users/$${userId}/entries`)
+  const snapshots = await getDocs(entriesRef)
   return snapshots.docs.map(snapshot => snapshot.data())
 }
 
@@ -113,11 +123,24 @@ export const getFilteredEntries = async (userId, predicate) => {
   return entries.filter(predicate)
 }
 
-export const saveText = async (text, year, month, day, userId) => {
-  const docRef = doc(getFirestore(app), `/entries/${year}${month}${day}-${userId}`)
+export const saveText = async (text, year, month, dayStr, userId) => {
+  const daysInMonthFilledRef = doc(getFirestore(app), `/users/${userId}/daysInMonthFilled/${year}${month}`)
+  const daysInMonthFilledSnap = await getDoc(daysInMonthFilledRef)
+  let days
+  if (daysInMonthFilledSnap.exists()) {
+    const d = daysInMonthFilledSnap.data()
+    days = d.days || []
+  }
+  const day = Number(dayStr)
+  if (!days.includes(day)) {
+    days.push(day)
+    await setDoc(daysInMonthFilledRef, { days })
+  }
+
+  const docRef = doc(getFirestore(app), `/users/${userId}/entries/${year}${month}${dayStr}`)
   return setDoc(docRef, {
     text,
-    day: Number(day),
+    day,
     year: Number(year),
     month: Number(month),
     userId
