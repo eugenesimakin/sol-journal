@@ -107,13 +107,13 @@ export const getDaysInMonthFilled = async (year, month, userId) => {
 
 // last 5 entries
 export const getLastEntries = async (userId) => {
-  const q = query(collection(getFirestore(app), `/users/$${userId}/entries`), limit(5))
+  const q = query(collection(getFirestore(app), `/users/${userId}/entries`), limit(5))
   const snapshots = await getDocs(q)
   return snapshots.docs.map(snapshot => snapshot.data())
 }
 
 export const getAllEntries = async (userId) => {
-  const entriesRef = collection(getFirestore(app), `/users/$${userId}/entries`)
+  const entriesRef = collection(getFirestore(app), `/users/${userId}/entries`)
   const snapshots = await getDocs(entriesRef)
   return snapshots.docs.map(snapshot => snapshot.data())
 }
