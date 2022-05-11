@@ -19,8 +19,6 @@ import {
   query,
   limit,
   getDocs,
-  where,
-  orderBy,
 } from 'firebase/firestore'
 
 // store private keys in .env file

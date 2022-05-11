@@ -34,7 +34,9 @@
     "start": "gatsby develop",
     "build": "gatsby build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "gatsby build",
+    "deploy": "firebase deploy"
   },
   "eslintConfig": {
     "extends": "react-app"
